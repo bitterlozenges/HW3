@@ -81,8 +81,8 @@ class Sudoku:
         Returns the first variable with assignment epsilon
         i.e. first square in the board that is unassigned.
         """
-        for row in self.board:
-            for col in row:
+        for row in range(len(self.board)):
+            for col in self.board[row]:
                 if self.board[row][col] == 0:
                     return (row,col)
         return None
@@ -186,8 +186,8 @@ class Sudoku:
         IMPLEMENT IN PART 4
         Returns true if all variables have non-empty domains.
         """
-        for row in self.board:
-            for col in row:
+        for row in range(len(self.board)):
+            for col in self.board[row]:
                 if not self.variableDomain(row,col):
                     return False
         return True
