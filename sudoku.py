@@ -1,3 +1,4 @@
+# Tiffany Wu & Sam Kaplan
 from copy import deepcopy
 import timeit
 import sys, os
@@ -202,7 +203,24 @@ class Sudoku:
         IMPLEMENT IN PART 5
         Returns the most constrained unassigned variable.
         """
-        raise NotImplementedError()
+        # (r,c) of most constrained var
+        var = None
+        # size of its domain
+        size = 11
+
+        dim = len(self.board)
+        for r in xrange(dimension):
+            for c in xrange(len(self.board)[0]):
+                if self.board[r][c] == 0:
+                    continue
+                # size of new domain
+                new_size = len(self.variableDomain(row,col))
+
+                if new_size < size:
+                    var = (r,c)
+                    size = new_size
+        return var
+
 
     # LOCAL SEARCH CODE
     # Fixed variables cannot be changed by the player.
@@ -246,8 +264,11 @@ class Sudoku:
         with all the row factors being held consistent. 
         Should call `updateAllFactors` at end.
         """
-        raise NotImplementedError()
-        # self.updateAllFactors()
+        board = []
+        for i in xrange(9):
+            board.append(random.shuffle(range(9)))
+        self.board = board
+        self.updateAllFactors()
     
     # PART 7
     def randomSwap(self):
@@ -256,7 +277,11 @@ class Sudoku:
         Returns two random variables that can be swapped without
         causing a row factor conflict.
         """
-        raise NotImplementedError()
+        # randomly select a row
+        r = random.randrange(9)
+        # randomly select two columns
+        cols = random.sample(range(9), 2)
+        return [(r,cols[0]), (r,cols[1])]
       
 
     # PART 8
