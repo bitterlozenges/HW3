@@ -82,7 +82,7 @@ class Sudoku:
         i.e. first square in the board that is unassigned.
         """
         for row in range(len(self.board)):
-            for col in self.board[row]:
+            for col in range(len(self.board[row])):
                 if self.board[row][col] == 0:
                     return (row,col)
         return None
@@ -102,7 +102,8 @@ class Sudoku:
         domain = range(1,10)
         restrictions = self.row(r) + self.col(c) + self.box(self.box_id(r,c))
         for assignment in restrictions:
-            domain.remove(assignment)
+            if assignment in domain:
+                domain.remove(assignment)
         return domain
 
 
@@ -123,14 +124,14 @@ class Sudoku:
             
         if factor_type == COL:
             assigned = self.col(i)
-
-        for assignment in values:
+        self.factorNumConflicts[factor_type,i] = 0
+        for assignment in assigned:
             if assignment in values:
                 values.remove(assignment)
             else:
-                self.factorNumConflicts[(factor_type,i)] += 1
+                self.factorNumConflicts[factor_type,i] += 1
 
-        self.factorsRemaining[(factor_type,i)] = values
+        self.factorRemaining[factor_type,i] = values
             
         
     def updateAllFactors(self):
@@ -189,8 +190,9 @@ class Sudoku:
         Returns true if all variables have non-empty domains.
         """
         for row in range(len(self.board)):
-            for col in self.board[row]:
-                if not self.variableDomain(row,col):
+            for col in range(len(self.board[row])):
+                if self.variableDomain(row,col) == []:
+                    print str(self)
                     return False
         return True
 
@@ -263,7 +265,10 @@ class Sudoku:
         IMPLEMENT FOR PART 8
         Decide if we should swap the values of variable1 and variable2.
         """
-        raise NotImplementedError()
+        row1,col1=variable1
+        row2,col2=variable2
+        return self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
+        #return random.random() < 0.001 or self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
 
         
     ### IGNORE - PRINTING CODE
@@ -309,7 +314,7 @@ class Sudoku:
                 if j in [8]:
                     td_style = "border-right: #666699 solid 2px;"
 
-                out +=  "<td class='outtop' style='%s'> %s </td>"%(td_style , cols[i] if cols[i] else "   ")
+                out +=  "<td class='outtop' style='%s'> %s </td>"%(td_style , cols[i] if (i < len(cols) and cols[i]) else "   ")
             out += "<td class='outtop'></td>" * 9 +  "</tr>" 
 
         
@@ -394,7 +399,7 @@ class Sudoku:
                 if j in [3, 6]: 
                     out += "| " 
                 if i < 9:     
-                    out +=  (" %d "%(cols[i]) if cols[i] else "   ") + " " 
+                    out +=  (" %d "%(cols[i]) if (i < len(cols) and cols[i]) else "   ") + " " 
                 else:
                     out +=  ("(%d)"%(conf)) +  " " 
             out += "\n" 
