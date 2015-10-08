@@ -1,3 +1,4 @@
+# Tiffany Wu & Sam Kaplan
 from copy import deepcopy
 import timeit
 import sys, os
