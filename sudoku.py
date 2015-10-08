@@ -52,6 +52,7 @@ class Sudoku:
 
     def box(self, b):
         "The variable assignments for a box factor."
+        #print "box ",self.board
         row = int(b / 3)
         col = b % 3
         nums = []
@@ -105,6 +106,8 @@ class Sudoku:
         for assignment in restrictions:
             if assignment in domain:
                 domain.remove(assignment)
+        #crossOff(domain,restrictions)
+        #print "restrict: " + str(restrictions) + " final dom: ", domain
         return domain
 
 
@@ -125,12 +128,9 @@ class Sudoku:
             
         if factor_type == COL:
             assigned = self.col(i)
-        self.factorNumConflicts[factor_type,i] = 0
-        for assignment in assigned:
-            if assignment in values:
-                values.remove(assignment)
-            else:
-                self.factorNumConflicts[factor_type,i] += 1
+
+        self.factorNumConflicts[factor_type,i] = crossOff(values,assigned)
+
 
         self.factorRemaining[factor_type,i] = values
             
@@ -192,8 +192,7 @@ class Sudoku:
         """
         for row in range(len(self.board)):
             for col in range(len(self.board[row])):
-                if self.variableDomain(row,col) == []:
-                    print str(self)
+                if (self.board[row][col] == 0) and (not self.variableDomain(row,col)):
                     return False
         return True
 
@@ -209,16 +208,15 @@ class Sudoku:
         size = 11
 
         dim = len(self.board)
-        for r in xrange(dimension):
-            for c in xrange(len(self.board)[0]):
+        for r in range(len(self.board)):
+            for c in range(len(self.board[0])):
                 if self.board[r][c] == 0:
-                    continue
                 # size of new domain
-                new_size = len(self.variableDomain(row,col))
+                    new_size = len(self.variableDomain(r,c))
 
-                if new_size < size:
-                    var = (r,c)
-                    size = new_size
+                    if new_size < size:
+                        var = (r,c)
+                        size = new_size
         return var
 
 
@@ -264,11 +262,11 @@ class Sudoku:
         with all the row factors being held consistent. 
         Should call `updateAllFactors` at end.
         """
-        board = []
         for i in xrange(9):
-            board.append(random.shuffle(range(9)))
-        self.board = board
+            random.shuffle(self.board[i])
+       # print "board",self.board
         self.updateAllFactors()
+
     
     # PART 7
     def randomSwap(self):
@@ -276,11 +274,12 @@ class Sudoku:
         IMPLEMENT FOR PART 7
         Returns two random variables that can be swapped without
         causing a row factor conflict.
-        """
+        """ #should we allow for different rowz
         # randomly select a row
         r = random.randrange(9)
         # randomly select two columns
         cols = random.sample(range(9), 2)
+
         return [(r,cols[0]), (r,cols[1])]
       
 
@@ -292,7 +291,8 @@ class Sudoku:
         """
         row1,col1=variable1
         row2,col2=variable2
-        return self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
+        #print "v1", variable1, " v2 ", variable2, " fnc ", self.factorNumConflicts
+        return self.factorNumConflicts[ROW,row1] + self.factorNumConflicts[COL,col1] + self.factorNumConflicts[BOX,self.box_id(row1,col1)] < self.factorNumConflicts[ROW,row2] + self.factorNumConflicts[COL,col2] + self.factorNumConflicts[BOX,self.box_id(row2,col2)]
         #return random.random() < 0.001 or self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
 
         
@@ -339,7 +339,7 @@ class Sudoku:
                 if j in [8]:
                     td_style = "border-right: #666699 solid 2px;"
 
-                out +=  "<td class='outtop' style='%s'> %s </td>"%(td_style , cols[i] if (i < len(cols) and cols[i]) else "   ")
+                out +=  "<td class='outtop' style='%s'> %s </td>"%(td_style , cols[i] if (cols[i]) else "   ")
             out += "<td class='outtop'></td>" * 9 +  "</tr>" 
 
         
@@ -424,7 +424,7 @@ class Sudoku:
                 if j in [3, 6]: 
                     out += "| " 
                 if i < 9:     
-                    out +=  (" %d "%(cols[i]) if (i < len(cols) and cols[i]) else "   ") + " " 
+                    out +=  (" %d "%(cols[i]) if cols[i] else "   ") + " " 
                 else:
                     out +=  ("(%d)"%(conf)) +  " " 
             out += "\n" 
