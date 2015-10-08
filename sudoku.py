@@ -169,7 +169,9 @@ class Sudoku:
         Returns new assignments with each possible value 
         assigned to the variable returned by `nextVariable`.
         """
-        raise NotImplementedError()
+        r, c = self.nextVariable()
+        domain = self.variableDomain(r,c)
+        return [self.setVariable(r, c, val) for val in domain]
 
     def getAllSuccessors(self):
         if not args.forward: 
