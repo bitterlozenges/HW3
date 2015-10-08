@@ -274,7 +274,11 @@ class Sudoku:
         Returns two random variables that can be swapped without
         causing a row factor conflict.
         """
-        raise NotImplementedError()
+        # randomly select a row
+        r = random.randrange(9)
+        # randomly select two columns
+        cols = random.sample(range(9), 2)
+        return [(r,cols[0]), (r,cols[1])]
       
 
     # PART 8
