@@ -263,8 +263,8 @@ class Sudoku:
         Should call `updateAllFactors` at end.
         """
         for i in xrange(9):
+            self.board[i] = [1,2,3,4,5,6,7,8,9]
             random.shuffle(self.board[i])
-       # print "board",self.board
         self.updateAllFactors()
 
     
@@ -284,15 +284,36 @@ class Sudoku:
       
 
     # PART 8
+    def conflicts (self,row1,col1):
+        return self.factorNumConflicts[ROW,row1] + self.factorNumConflicts[COL,col1] + self.factorNumConflicts[BOX,self.box_id(row1,col1)]
     def gradientDescent(self, variable1, variable2):
         """
         IMPLEMENT FOR PART 8
         Decide if we should swap the values of variable1 and variable2.
         """
-        row1,col1=variable1
-        row2,col2=variable2
         #print "v1", variable1, " v2 ", variable2, " fnc ", self.factorNumConflicts
-        return self.factorNumConflicts[ROW,row1] + self.factorNumConflicts[COL,col1] + self.factorNumConflicts[BOX,self.box_id(row1,col1)] < self.factorNumConflicts[ROW,row2] + self.factorNumConflicts[COL,col2] + self.factorNumConflicts[BOX,self.box_id(row2,col2)]
+        before = self.numConflicts()
+
+        self.modifySwap(variable1,variable2)
+
+        after = self.numConflicts()
+        #print "before ",before, " after ", after, " v1 ", variable1, " v2 ", variable2
+
+        if before < after and random.random() > 0.001:
+            self.modifySwap(variable1,variable2)
+
+        #val1 = self.board[row1][col1]
+        #val2 = self.board[row2][col2]
+        #self.board[row1][col1] = val2
+        #self.board[row2][col2] = val1
+        #self.updateAllFactors()
+        #after = self.conflicts(row2,col2)
+        #if before < after:
+            #self.board[row1][col1] = 1
+            #self.board[row2][col2] = val1
+        #self.updateAllFactors()
+        
+
         #return random.random() < 0.001 or self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
 
         
@@ -438,10 +459,10 @@ class Sudoku:
             row = self.factorRemaining[ROW, i]
             conf = self.factorNumConflicts[ROW, i]
             vals = " " .join((str(j) if j else " " for j in row ))
-            
+            print 
             out += "%s %s %s | %s %s %s | %s %s %s : %s (%d) \n\n"%(
                 tuple([((BOLD + " %d " + ENDC)%(assign) if (i, j) in self.lastMoves
-                        else " %d "%(assign) if assign
+                       else " %d "%(assign) if assign
                         else "X-%d"%(len(self.variableDomain(i, j)))) 
                        for j, assign in enumerate(self.board[i]) ]) 
                 + (vals,conf))
@@ -500,7 +521,6 @@ def solveLocal(problem):
                 sleep(0.5)
 
                 
-                
             if state.numConflicts() == 0:
                 return state
                 break
@@ -508,7 +528,7 @@ def solveLocal(problem):
             if args.debug:
                 os.system("clear")
                 print state
-                raw_input("Press Enter to continue...")            
+                raw_input("Press Enter to continue...")  
     
                 
 
