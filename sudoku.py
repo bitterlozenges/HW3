@@ -516,11 +516,10 @@ def solveLocal(problem):
                 return state
                 break
 
-            if args.debug:# or state.numConflicts() < 13:
+            if args.debug:
                 os.system("clear")
                 print state
                 raw_input("Press Enter to continue...")  
-    print problem
     
                 
 
