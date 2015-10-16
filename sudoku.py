@@ -52,7 +52,7 @@ class Sudoku:
 
     def box(self, b):
         "The variable assignments for a box factor."
-        #print "box ",self.board
+
         row = int(b / 3)
         col = b % 3
         nums = []
@@ -106,8 +106,6 @@ class Sudoku:
         for assignment in restrictions:
             if assignment in domain:
                 domain.remove(assignment)
-        #crossOff(domain,restrictions)
-        #print "restrict: " + str(restrictions) + " final dom: ", domain
         return domain
 
 
@@ -129,10 +127,7 @@ class Sudoku:
         if factor_type == COL:
             assigned = self.col(i)
 
-        print values
-        print assigned
         self.factorNumConflicts[factor_type,i] = crossOff(values,assigned)
-        print self.factorNumConflicts[factor_type,i]
 
         self.factorRemaining[factor_type,i] = values
             
@@ -265,8 +260,12 @@ class Sudoku:
         Should call `updateAllFactors` at end.
         """
         for i in xrange(9):
-            self.board[i] = [1,2,3,4,5,6,7,8,9]
-            random.shuffle(self.board[i])
+            for j in xrange(9):
+                if self.board[i][j] == 0:
+                    d = 0
+                    while d in self.board[i]:
+                        d = random.randint(1,9)
+                    self.board[i][j] = d
         self.updateAllFactors()
 
     
@@ -297,20 +296,13 @@ class Sudoku:
         IMPLEMENT FOR PART 8
         Decide if we should swap the values of variable1 and variable2.
         """
-        #print self.numConflicts()
         before = self.numConflicts()
-
         self.modifySwap(variable1,variable2)
 
-
         after = self.numConflicts()
-
-        #print "v1 ", variable1, " v2 ", variable2, " b ", before, " a ", after
-
         if before < after:
             self.modifySwap(variable1,variable2)
             if random.random() < 0.001:
-                #print "non"
                self.modifySwap(variable1,variable2)
         
 
