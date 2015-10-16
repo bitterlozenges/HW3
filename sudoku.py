@@ -129,8 +129,10 @@ class Sudoku:
         if factor_type == COL:
             assigned = self.col(i)
 
+        print values
+        print assigned
         self.factorNumConflicts[factor_type,i] = crossOff(values,assigned)
-
+        print self.factorNumConflicts[factor_type,i]
 
         self.factorRemaining[factor_type,i] = values
             
@@ -274,13 +276,17 @@ class Sudoku:
         IMPLEMENT FOR PART 7
         Returns two random variables that can be swapped without
         causing a row factor conflict.
-        """ #should we allow for different rowz
-        # randomly select a row
-        r = random.randrange(9)
-        # randomly select two columns
-        cols = random.sample(range(9), 2)
+        """ 
+        r = random.randint(0,8)
 
-        return [(r,cols[0]), (r,cols[1])]
+        n1 = random.randint(0,8)
+        n2 = random.randint(0,8)
+
+        while (r, n1) in self.fixedVariables.keys() or (r, n2) in self.fixedVariables.keys() or n1 == n2:
+            n1 = random.randint(0,8)
+            n2 = random.randint(0,8)
+
+        return [(r,n1), (r,n2)]
       
 
     # PART 8
@@ -291,30 +297,23 @@ class Sudoku:
         IMPLEMENT FOR PART 8
         Decide if we should swap the values of variable1 and variable2.
         """
-        #print "v1", variable1, " v2 ", variable2, " fnc ", self.factorNumConflicts
+        #print self.numConflicts()
         before = self.numConflicts()
 
         self.modifySwap(variable1,variable2)
 
+
         after = self.numConflicts()
-        #print "before ",before, " after ", after, " v1 ", variable1, " v2 ", variable2
 
-        if before < after and random.random() > 0.001:
+        #print "v1 ", variable1, " v2 ", variable2, " b ", before, " a ", after
+
+        if before < after:
             self.modifySwap(variable1,variable2)
-
-        #val1 = self.board[row1][col1]
-        #val2 = self.board[row2][col2]
-        #self.board[row1][col1] = val2
-        #self.board[row2][col2] = val1
-        #self.updateAllFactors()
-        #after = self.conflicts(row2,col2)
-        #if before < after:
-            #self.board[row1][col1] = 1
-            #self.board[row2][col2] = val1
-        #self.updateAllFactors()
+            if random.random() < 0.001:
+                #print "non"
+               self.modifySwap(variable1,variable2)
         
 
-        #return random.random() < 0.001 or self.factorNumConflicts[row1][col1] < self.factorNumConflicts[row2][col2]
 
         
     ### IGNORE - PRINTING CODE
@@ -525,10 +524,11 @@ def solveLocal(problem):
                 return state
                 break
 
-            if args.debug:
+            if args.debug:# or state.numConflicts() < 13:
                 os.system("clear")
                 print state
                 raw_input("Press Enter to continue...")  
+    print problem
     
                 
 
